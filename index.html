@@ -1,961 +1,1661 @@
 <!DOCTYPE html>
 <html lang="ko">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>PRISM - 진정한 연결을 찾아가는 여정</title>
     <style>
-      * {
-        margin: 0;
-        padding: 0;
-        box-sizing: border-box;
-      }
-
-      body {
-        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-        background: linear-gradient(180deg, #f8f6f3 0%, #f1efeb 100%);
-        min-height: 100vh;
-        color: #2c2c2c;
-        line-height: 1.5;
-      }
-
-      .app-container {
-        max-width: 800px;
-        margin: 0 auto;
-        min-height: 100vh;
-        display: flex;
-        flex-direction: column;
-        position: relative;
-        box-shadow: none;
-      }
-
-      /* Header Styles */
-      .header {
-        padding: 40px 24px 30px 24px;
-        border-bottom: none;
-        position: relative;
-        background: transparent;
-        z-index: 10;
-      }
-
-      .back-button {
-        position: absolute;
-        left: 24px;
-        top: 50px;
-        background: none;
-        border: none;
-        font-size: 1.5rem;
-        color: #6a6a6a;
-        cursor: pointer;
-        transition: color 0.2s ease;
-      }
-
-      .back-button:hover {
-        color: #4a4a4a;
-      }
-
-      .back-button.hidden {
-        display: none;
-      }
-
-      .logo {
-        font-size: 2.5rem;
-        font-weight: 300;
-        color: #5a5a5a;
-        margin-bottom: 8px;
-        letter-spacing: -2px;
-        text-align: center;
-      }
-
-      .subtitle {
-        color: #8a8a8a;
-        font-size: 0.95rem;
-        font-weight: 400;
-        letter-spacing: 0.3px;
-        text-align: center;
-      }
-
-      /* Page Management */
-      .page {
-        display: none;
-        flex: 1;
-        padding: 24px;
-        animation: fadeIn 0.3s ease;
-      }
-
-      .page.active {
-        display: flex;
-        flex-direction: column;
-      }
-
-      @keyframes fadeIn {
-        from { opacity: 0; transform: translateY(10px); }
-        to { opacity: 1; transform: translateY(0); }
-      }
-
-      /* Section Styles */
-      .section {
-        margin-bottom: 40px;
-      }
-
-      .section-header {
-        margin-bottom: 32px;
-      }
-
-      .question-category {
-        font-size: 0.85rem;
-        color: #9a9a9a;
-        text-transform: uppercase;
-        letter-spacing: 1px;
-        margin-bottom: 16px;
-        font-weight: 500;
-      }
-
-      .question-text {
-        font-size: 1.3rem;
-        color: #3a3a3a;
-        line-height: 1.6;
-        font-weight: 400;
-        letter-spacing: -0.3px;
-      }
-
-      /* Question Options */
-      .question-options {
-        display: flex;
-        flex-direction: column;
-        gap: 16px;
-        margin-bottom: 32px;
-      }
-
-      .option {
-        padding: 20px 24px;
-        background: rgba(255, 255, 255, 0.6);
-        border: 1px solid #e8e5e1;
-        border-radius: 12px;
-        cursor: pointer;
-        transition: all 0.2s ease;
-        font-size: 0.95rem;
-        color: #4a4a4a;
-        letter-spacing: 0.2px;
-      }
-
-      .option:hover {
-        background: rgba(255, 255, 255, 0.8);
-        border-color: #d0ccc6;
-      }
-
-      .option.selected {
-        background: rgba(255, 255, 255, 0.9);
-        border-color: #6a6a6a;
-        color: #2c2c2c;
-        font-weight: 500;
-      }
-
-      /* Action Buttons */
-      .action-buttons {
-        display: flex;
-        flex-direction: column;
-        gap: 16px;
-      }
-
-      .btn {
-        padding: 16px 24px;
-        border-radius: 12px;
-        border: none;
-        font-size: 0.95rem;
-        font-weight: 500;
-        letter-spacing: 0.2px;
-        cursor: pointer;
-        transition: all 0.2s ease;
-      }
-
-      .btn-primary {
-        background: #6a6a6a;
-        color: white;
-      }
-
-      .btn-primary:hover:not(:disabled) {
-        background: #4a4a4a;
-      }
-
-      .btn-primary:disabled {
-        background: #c0c0c0;
-        cursor: not-allowed;
-      }
-
-      .btn-secondary {
-        background: rgba(255, 255, 255, 0.6);
-        color: #6a6a6a;
-        border: 1px solid #e8e5e1;
-      }
-
-      .btn-secondary:hover {
-        background: rgba(255, 255, 255, 0.8);
-        color: #4a4a4a;
-      }
-
-      /* Streak Info */
-      .streak-info {
-        text-align: center;
-        padding: 32px 0;
-        border-top: 1px solid #e8e5e1;
-      }
-
-      .streak-number {
-        font-size: 2.5rem;
-        color: #4a4a4a;
-        font-weight: 300;
-        margin-bottom: 8px;
-        letter-spacing: -1px;
-      }
-
-      .streak-text {
-        font-size: 0.9rem;
-        color: #8a8a8a;
-        letter-spacing: 0.3px;
-      }
-
-      /* Matching Page */
-      .matching-intro {
-        text-align: center;
-        margin-bottom: 40px;
-      }
-
-      .matching-title {
-        font-size: 1.5rem;
-        color: #4a4a4a;
-        font-weight: 400;
-        margin-bottom: 12px;
-        letter-spacing: -0.5px;
-      }
-
-      .matching-subtitle {
-        font-size: 0.9rem;
-        color: #7a7a7a;
-        letter-spacing: 0.2px;
-      }
-
-      /* Filter Section */
-      .filter-section {
-        margin-bottom: 32px;
-      }
-
-      .filter-title {
-        font-size: 1rem;
-        color: #4a4a4a;
-        font-weight: 500;
-        margin-bottom: 16px;
-        letter-spacing: 0.1px;
-      }
-
-      .filter-options {
-        display: flex;
-        gap: 12px;
-        flex-wrap: wrap;
-      }
-
-      .filter-tag {
-        padding: 8px 16px;
-        background: rgba(255, 255, 255, 0.6);
-        border: 1px solid #e8e5e1;
-        border-radius: 20px;
-        font-size: 0.85rem;
-        color: #6a6a6a;
-        cursor: pointer;
-        transition: all 0.2s ease;
-      }
-
-      .filter-tag.active,
-      .filter-tag:hover {
-        background: rgba(255, 255, 255, 0.9);
-        color: #4a4a4a;
-        border-color: #d0ccc6;
-      }
-
-      /* Profile Cards */
-      .profile-grid {
-        display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
-        gap: 24px;
-      }
-
-      @media (max-width: 768px) {
-        .profile-grid {
-          display: flex;
-          flex-direction: column;
-          gap: 24px;
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
         }
-      }
 
-      .profile-card {
-        background: rgba(255, 255, 255, 0.7);
-        border: 1px solid #e8e5e1;
-        border-radius: 16px;
-        padding: 24px;
-        cursor: pointer;
-        transition: all 0.2s ease;
-      }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            background: linear-gradient(180deg, #f8f6f3 0%, #f1efeb 100%);
+            min-height: 100vh;
+            color: #2c2c2c;
+            line-height: 1.5;
+        }
 
-      .profile-card:hover {
-        background: rgba(255, 255, 255, 0.9);
-        border-color: #d0ccc6;
-        transform: translateY(-2px);
-      }
+        .app-container {
+            max-width: 800px;
+            margin: 0 auto;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+        }
 
-      .profile-header {
-        display: flex;
-        align-items: center;
-        margin-bottom: 20px;
-      }
+        /* Header */
+        .header {
+            padding: 40px 24px 30px 24px;
+            position: relative;
+            background: transparent;
+            z-index: 10;
+        }
 
-      .profile-photo {
-        width: 56px;
-        height: 56px;
-        border-radius: 50%;
-        background: rgba(255, 255, 255, 0.8);
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-size: 1.8rem;
-        margin-right: 16px;
-      }
+        .back-button {
+            position: absolute;
+            left: 24px;
+            top: 50px;
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            color: #6a6a6a;
+            cursor: pointer;
+            transition: color 0.2s ease;
+        }
 
-      .profile-name {
-        font-size: 1.1rem;
-        color: #4a4a4a;
-        font-weight: 500;
-        margin-bottom: 4px;
-      }
+        .back-button:hover {
+            color: #4a4a4a;
+        }
 
-      .profile-age {
-        font-size: 0.85rem;
-        color: #7a7a7a;
-      }
+        .back-button.hidden {
+            display: none;
+        }
 
-      .profile-answers {
-        display: flex;
-        flex-direction: column;
-        gap: 12px;
-      }
+        .logo {
+            font-size: 2.5rem;
+            font-weight: 300;
+            color: #5a5a5a;
+            margin-bottom: 8px;
+            letter-spacing: -2px;
+            text-align: center;
+        }
 
-      .answer-item {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        padding: 12px 0;
-        border-bottom: 1px solid #f0ede9;
-      }
+        .subtitle {
+            color: #8a8a8a;
+            font-size: 0.95rem;
+            font-weight: 400;
+            letter-spacing: 0.3px;
+            text-align: center;
+        }
 
-      .answer-item:last-child {
-        border-bottom: none;
-      }
+        /* Page Management */
+        .page {
+            display: none;
+            flex: 1;
+            padding: 24px;
+            animation: fadeIn 0.3s ease;
+        }
 
-      .answer-text {
-        font-size: 0.9rem;
-        color: #5a5a5a;
-        flex: 1;
-        margin-right: 12px;
-      }
+        .page.active {
+            display: flex;
+            flex-direction: column;
+        }
 
-      .answer-likes {
-        font-size: 0.8rem;
-        color: #8a8a8a;
-        display: flex;
-        align-items: center;
-        gap: 4px;
-      }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
 
-      .heart {
-        color: #d4a4a4;
-      }
+        /* Today's Question Page */
+        .section {
+            margin-bottom: 40px;
+        }
 
-      /* Profile Detail Page */
-      .profile-detail {
-        display: flex;
-        flex-direction: column;
-        gap: 32px;
-      }
+        .section-header {
+            margin-bottom: 32px;
+        }
 
-      .detail-header {
-        text-align: center;
-        padding: 24px 0;
-        border-bottom: 1px solid #e8e5e1;
-      }
+        .question-category {
+            font-size: 0.85rem;
+            color: #9a9a9a;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 16px;
+            font-weight: 500;
+        }
 
-      .detail-photos {
-        display: grid;
-        grid-template-columns: repeat(3, 1fr);
-        gap: 8px;
-        margin-bottom: 20px;
-        max-width: 300px;
-        margin-left: auto;
-        margin-right: auto;
-      }
+        .question-text {
+            font-size: 1.3rem;
+            color: #3a3a3a;
+            line-height: 1.6;
+            font-weight: 400;
+            letter-spacing: -0.3px;
+        }
 
-      .detail-photo {
-        aspect-ratio: 1;
-        border-radius: 12px;
-        background: rgba(255, 255, 255, 0.8);
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-size: 1.5rem;
-        cursor: pointer;
-        transition: transform 0.2s ease;
-        border: 2px solid transparent;
-      }
+        .question-options {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+            margin-bottom: 32px;
+        }
 
-      .detail-photo:first-child {
-        grid-column: 1 / 3;
-        grid-row: 1 / 3;
-        font-size: 3rem;
-        border-color: #e8e5e1;
-      }
+        .option {
+            padding: 20px 24px;
+            background: rgba(255, 255, 255, 0.6);
+            border: 1px solid #e8e5e1;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            font-size: 0.95rem;
+            color: #4a4a4a;
+            letter-spacing: 0.2px;
+        }
 
-      .detail-photo:hover {
-        transform: scale(1.05);
-      }
+        .option:hover {
+            background: rgba(255, 255, 255, 0.8);
+            border-color: #d0ccc6;
+        }
 
-      .detail-photo.active {
-        border-color: #6a6a6a;
-      }
+        .option.selected {
+            background: rgba(255, 255, 255, 0.9);
+            border-color: #6a6a6a;
+            color: #2c2c2c;
+            font-weight: 500;
+        }
 
-      .detail-name {
-        font-size: 1.5rem;
-        color: #4a4a4a;
-        font-weight: 400;
-        margin-bottom: 8px;
-      }
+        .action-buttons {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
 
-      .detail-age {
-        font-size: 0.9rem;
-        color: #7a7a7a;
-      }
+        .btn {
+            padding: 16px 24px;
+            border-radius: 12px;
+            border: none;
+            font-size: 0.95rem;
+            font-weight: 500;
+            letter-spacing: 0.2px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
 
-      .answers-section {
-        flex: 1;
-      }
+        .btn-primary {
+            background: #6a6a6a;
+            color: white;
+        }
 
-      .section-title {
-        font-size: 1.1rem;
-        color: #4a4a4a;
-        font-weight: 500;
-        margin-bottom: 20px;
-        letter-spacing: 0.1px;
-      }
+        .btn-primary:hover:not(:disabled) {
+            background: #4a4a4a;
+        }
 
-      .detail-answer {
-        padding: 20px 0;
-        border-bottom: 1px solid #e8e5e1;
-      }
+        .btn-primary:disabled {
+            background: #c0c0c0;
+            cursor: not-allowed;
+        }
 
-      .detail-answer:last-child {
-        border-bottom: none;
-      }
+        .btn-secondary {
+            background: rgba(255, 255, 255, 0.6);
+            color: #6a6a6a;
+            border: 1px solid #e8e5e1;
+        }
 
-      .answer-question {
-        font-size: 0.85rem;
-        color: #8a8a8a;
-        margin-bottom: 8px;
-      }
+        .btn-secondary:hover {
+            background: rgba(255, 255, 255, 0.8);
+            color: #4a4a4a;
+        }
 
-      .answer-response {
-        font-size: 1rem;
-        color: #4a4a4a;
-        margin-bottom: 8px;
-      }
+        .streak-info {
+            text-align: center;
+            padding: 32px 0;
+            border-top: 1px solid #e8e5e1;
+        }
 
-      .detail-likes {
-        font-size: 0.8rem;
-        color: #8a8a8a;
-        display: flex;
-        align-items: center;
-        gap: 4px;
-      }
+        .streak-number {
+            font-size: 2.5rem;
+            color: #4a4a4a;
+            font-weight: 300;
+            margin-bottom: 8px;
+            letter-spacing: -1px;
+        }
 
-      .action-buttons-detail {
-        display: flex;
-        gap: 12px;
-        padding-top: 20px;
-      }
+        .streak-text {
+            font-size: 0.9rem;
+            color: #8a8a8a;
+            letter-spacing: 0.3px;
+        }
 
-      .btn-like {
-        flex: 1;
-        padding: 16px;
-        background: #6a6a6a;
-        color: white;
-        border: none;
-        border-radius: 12px;
-        font-size: 0.95rem;
-        font-weight: 500;
-        cursor: pointer;
-        transition: background 0.2s ease;
-      }
+        /* Matching Page */
+        .matching-header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
 
-      .btn-like:hover {
-        background: #4a4a4a;
-      }
+        .matching-title {
+            font-size: 1.5rem;
+            color: #4a4a4a;
+            font-weight: 400;
+            margin-bottom: 12px;
+            letter-spacing: -0.5px;
+        }
 
-      .btn-pass {
-        flex: 1;
-        padding: 16px;
-        background: rgba(255, 255, 255, 0.6);
-        color: #6a6a6a;
-        border: 1px solid #e8e5e1;
-        border-radius: 12px;
-        font-size: 0.95rem;
-        font-weight: 500;
-        cursor: pointer;
-        transition: all 0.2s ease;
-      }
+        .matching-subtitle {
+            font-size: 0.9rem;
+            color: #7a7a7a;
+            letter-spacing: 0.2px;
+        }
 
-      .btn-pass:hover {
-        background: rgba(255, 255, 255, 0.8);
-        color: #4a4a4a;
-      }
+        /* Tab Navigation */
+        .tab-navigation {
+            display: flex;
+            background: rgba(255, 255, 255, 0.6);
+            border-radius: 12px;
+            padding: 4px;
+            margin-bottom: 30px;
+            border: 1px solid #e8e5e1;
+        }
 
-      /* Loading Page */
-      .loading {
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        justify-content: center;
-        flex: 1;
-        gap: 24px;
-        color: #6a6a6a;
-        font-size: 1rem;
-      }
+        .tab-button {
+            flex: 1;
+            padding: 12px 16px;
+            background: none;
+            border: none;
+            border-radius: 8px;
+            font-size: 0.9rem;
+            font-weight: 400;
+            color: #6a6a6a;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            position: relative;
+        }
 
-      .spinner {
-        width: 40px;
-        height: 40px;
-        border: 3px solid #e8e5e1;
-        border-top: 3px solid #6a6a6a;
-        border-radius: 50%;
-        animation: spin 1s linear infinite;
-      }
+        .tab-button.active {
+            background: white;
+            color: #2c2c2c;
+            font-weight: 500;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+        }
 
-      @keyframes spin {
-        0% { transform: rotate(0deg); }
-        100% { transform: rotate(360deg); }
-      }
+        .tab-button:hover:not(.active) {
+            color: #4a4a4a;
+        }
+
+        .notification-badge {
+            position: absolute;
+            top: 8px;
+            right: 8px;
+            background: rgba(228, 198, 203, 0.8);
+            color: white;
+            font-size: 0.7rem;
+            padding: 2px 6px;
+            border-radius: 10px;
+            min-width: 16px;
+            text-align: center;
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        /* Profile Grid */
+        .profile-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 24px;
+        }
+
+        @media (max-width: 768px) {
+            .profile-grid {
+                display: flex;
+                flex-direction: column;
+                gap: 24px;
+            }
+        }
+
+        .profile-card {
+            background: rgba(255, 255, 255, 0.7);
+            border: 1px solid #e8e5e1;
+            border-radius: 16px;
+            padding: 24px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .profile-card:hover {
+            background: rgba(255, 255, 255, 0.9);
+            border-color: #d0ccc6;
+            transform: translateY(-2px);
+        }
+
+        .profile-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .profile-photo {
+            width: 56px;
+            height: 56px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.8);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.8rem;
+            margin-right: 16px;
+        }
+
+        .profile-info {
+            flex: 1;
+        }
+
+        .profile-name {
+            font-size: 1.1rem;
+            color: #4a4a4a;
+            font-weight: 500;
+            margin-bottom: 4px;
+        }
+
+        .profile-age {
+            font-size: 0.85rem;
+            color: #7a7a7a;
+        }
+
+        .profile-answers {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .answer-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 0;
+            border-bottom: 1px solid #f0ede9;
+        }
+
+        .answer-item:last-child {
+            border-bottom: none;
+        }
+
+        .answer-text {
+            font-size: 0.9rem;
+            color: #5a5a5a;
+            flex: 1;
+            margin-right: 12px;
+        }
+
+        .answer-likes {
+            font-size: 0.8rem;
+            color: #8a8a8a;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .heart {
+            color: #d4a4a4;
+        }
+
+        /* Likes Tab */
+        .likes-intro {
+            background: white;
+            padding: 25px 20px;
+            border-radius: 12px;
+            margin-bottom: 25px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.03);
+            border: 1px solid rgba(232, 230, 225, 0.5);
+        }
+
+        .intro-title {
+            font-size: 1.1rem;
+            font-weight: 300;
+            color: #2c2c2c;
+            margin-bottom: 12px;
+            letter-spacing: 0.5px;
+        }
+
+        .intro-text {
+            font-size: 0.95rem;
+            color: #666;
+            line-height: 1.5;
+        }
+
+        .filter-section {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 20px;
+            overflow-x: auto;
+            padding-bottom: 5px;
+        }
+
+        .filter-btn {
+            background: white;
+            border: 1px solid #e8e6e1;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            color: #666;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            white-space: nowrap;
+            font-weight: 300;
+        }
+
+        .filter-btn.active {
+            background: rgba(228, 198, 203, 0.1);
+            border-color: rgba(228, 198, 203, 0.3);
+            color: #2c2c2c;
+        }
+
+        .filter-btn:hover {
+            border-color: rgba(228, 198, 203, 0.3);
+            transform: translateY(-1px);
+        }
+
+        .likes-grid {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        .likes-profile-card {
+            background: white;
+            border-radius: 16px;
+            padding: 20px;
+            box-shadow: 0 2px 15px rgba(0,0,0,0.04);
+            border: 1px solid rgba(232, 230, 225, 0.5);
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .likes-profile-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 25px rgba(0,0,0,0.08);
+        }
+
+        .likes-profile-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 16px;
+        }
+
+        .likes-profile-image {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, 
+                rgba(228, 198, 203, 0.3), 
+                rgba(235, 215, 195, 0.3));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            margin-right: 15px;
+            border: 2px solid rgba(255,255,255,0.8);
+        }
+
+        .likes-profile-info {
+            flex: 1;
+        }
+
+        .likes-profile-name {
+            font-size: 1.1rem;
+            font-weight: 400;
+            color: #2c2c2c;
+            margin-bottom: 4px;
+        }
+
+        .likes-profile-meta {
+            font-size: 0.85rem;
+            color: #666;
+            display: flex;
+            gap: 12px;
+        }
+
+        .like-time {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            font-size: 0.8rem;
+            color: #999;
+            background: rgba(248, 246, 243, 0.8);
+            padding: 4px 8px;
+            border-radius: 8px;
+        }
+
+        .answers-preview {
+            margin: 16px 0;
+        }
+
+        .likes-answer-item {
+            background: #f8f6f3;
+            padding: 12px 15px;
+            border-radius: 10px;
+            margin-bottom: 8px;
+            border-left: 3px solid rgba(228, 198, 203, 0.4);
+        }
+
+        .answer-question {
+            font-size: 0.8rem;
+            color: #666;
+            margin-bottom: 4px;
+            font-weight: 300;
+        }
+
+        .likes-answer-text {
+            font-size: 0.9rem;
+            color: #2c2c2c;
+            line-height: 1.4;
+        }
+
+        .action-buttons-likes {
+            display: flex;
+            gap: 12px;
+            margin-top: 20px;
+        }
+
+        .btn-pass {
+            flex: 1;
+            background: #f1efeb;
+            border: 1px solid #e8e6e1;
+            color: #666;
+            padding: 12px;
+            border-radius: 12px;
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            font-weight: 300;
+        }
+
+        .btn-pass:hover {
+            background: #e8e6e1;
+            transform: translateY(-1px);
+        }
+
+        .btn-like {
+            flex: 2;
+            background: linear-gradient(135deg, 
+                rgba(228, 198, 203, 0.1), 
+                rgba(235, 215, 195, 0.1));
+            border: 1px solid rgba(228, 198, 203, 0.3);
+            color: #2c2c2c;
+            padding: 12px;
+            border-radius: 12px;
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            font-weight: 300;
+        }
+
+        .btn-like:hover {
+            background: linear-gradient(135deg, 
+                rgba(228, 198, 203, 0.2), 
+                rgba(235, 215, 195, 0.2));
+            transform: translateY(-1px);
+            box-shadow: 0 2px 8px rgba(228, 198, 203, 0.2);
+        }
+
+        .match-indicator {
+            position: absolute;
+            top: -2px;
+            left: -2px;
+            right: -2px;
+            height: 4px;
+            background: linear-gradient(90deg, 
+                rgba(228, 198, 203, 0.6), 
+                rgba(235, 215, 195, 0.6), 
+                rgba(240, 235, 190, 0.6));
+            border-radius: 16px 16px 0 0;
+        }
+
+        .compatibility-score {
+            display: inline-block;
+            background: rgba(200, 225, 210, 0.2);
+            color: #2c2c2c;
+            font-size: 0.75rem;
+            padding: 3px 8px;
+            border-radius: 10px;
+            margin-top: 8px;
+            font-weight: 300;
+        }
+
+        /* Loading Page */
+        .loading {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            flex: 1;
+            gap: 24px;
+            color: #6a6a6a;
+            font-size: 1rem;
+        }
+
+        .spinner {
+            width: 40px;
+            height: 40px;
+            border: 3px solid #e8e5e1;
+            border-top: 3px solid #6a6a6a;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* Chat Mode */
+        .chat-mode {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: #f8f6f3;
+            z-index: 1000;
+            flex-direction: column;
+        }
+
+        .chat-mode.active {
+            display: flex;
+        }
+
+        .chat-header {
+            background: rgba(248, 246, 243, 0.95);
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid rgba(212, 210, 206, 0.3);
+            padding: 15px 20px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .chat-back-btn {
+            background: none;
+            border: none;
+            font-size: 1.2rem;
+            color: #666;
+            cursor: pointer;
+            padding: 8px;
+            transition: all 0.2s ease;
+        }
+
+        .chat-back-btn:hover {
+            color: #2c2c2c;
+            transform: translateX(-2px);
+        }
+
+        .profile-mini {
+            display: flex;
+            align-items: center;
+            flex: 1;
+            gap: 12px;
+        }
+
+        .profile-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, 
+                rgba(228, 198, 203, 0.3), 
+                rgba(235, 215, 195, 0.3));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.1rem;
+        }
+
+        .profile-chat-name {
+            font-size: 1.1rem;
+            font-weight: 400;
+            color: #2c2c2c;
+        }
+
+        .profile-status {
+            font-size: 0.8rem;
+            color: #666;
+            margin-top: 2px;
+        }
+
+        .chat-menu {
+            background: none;
+            border: none;
+            font-size: 1.1rem;
+            color: #666;
+            cursor: pointer;
+            padding: 8px;
+        }
+
+        .match-celebration {
+            background: linear-gradient(135deg, 
+                rgba(228, 198, 203, 0.1), 
+                rgba(235, 215, 195, 0.1));
+            border: 1px solid rgba(228, 198, 203, 0.2);
+            margin: 20px;
+            padding: 20px;
+            border-radius: 16px;
+            text-align: center;
+            animation: matchSuccess 0.8s ease;
+        }
+
+        @keyframes matchSuccess {
+            0% {
+                opacity: 0;
+                transform: scale(0.8) translateY(20px);
+            }
+            50% {
+                transform: scale(1.05) translateY(-5px);
+            }
+            100% {
+                opacity: 1;
+                transform: scale(1) translateY(0);
+            }
+        }
+
+        .celebration-icon {
+            font-size: 2.5rem;
+            margin-bottom: 12px;
+            animation: bounce 1s ease infinite;
+        }
+
+        @keyframes bounce {
+            0%, 20%, 50%, 80%, 100% {
+                transform: translateY(0);
+            }
+            40% {
+                transform: translateY(-10px);
+            }
+            60% {
+                transform: translateY(-5px);
+            }
+        }
+
+        .celebration-title {
+            font-size: 1.2rem;
+            font-weight: 400;
+            color: #2c2c2c;
+            margin-bottom: 8px;
+            letter-spacing: 0.5px;
+        }
+
+        .celebration-subtitle {
+            font-size: 0.9rem;
+            color: #666;
+            line-height: 1.4;
+        }
+
+        .conversation-starters {
+            margin: 0 20px 20px;
+            background: white;
+            border-radius: 16px;
+            padding: 20px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.03);
+        }
+
+        .starters-title {
+            font-size: 0.95rem;
+            font-weight: 400;
+            color: #2c2c2c;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .starter-item {
+            background: #f8f6f3;
+            border: 1px solid #e8e6e1;
+            border-radius: 12px;
+            padding: 12px 15px;
+            margin-bottom: 8px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .starter-item:hover {
+            background: rgba(228, 198, 203, 0.05);
+            border-color: rgba(228, 198, 203, 0.2);
+            transform: translateY(-1px);
+        }
+
+        .starter-item:last-child {
+            margin-bottom: 0;
+        }
+
+        .starter-text {
+            font-size: 0.9rem;
+            color: #2c2c2c;
+            line-height: 1.4;
+        }
+
+        .chat-messages {
+            flex: 1;
+            padding: 20px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        .message {
+            display: flex;
+            gap: 10px;
+            animation: messageSlide 0.3s ease;
+        }
+
+        @keyframes messageSlide {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .message.sent {
+            flex-direction: row-reverse;
+            justify-content: flex-start;
+        }
+
+        .message-avatar {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, 
+                rgba(228, 198, 203, 0.3), 
+                rgba(235, 215, 195, 0.3));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.9rem;
+            flex-shrink: 0;
+        }
+
+        .message.sent .message-avatar {
+            background: linear-gradient(135deg, 
+                rgba(200, 225, 210, 0.3), 
+                rgba(195, 215, 235, 0.3));
+        }
+
+        .message-content {
+            max-width: 70%;
+        }
+
+        .message-bubble {
+            background: white;
+            padding: 12px 16px;
+            border-radius: 16px;
+            box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+            border: 1px solid rgba(232, 230, 225, 0.5);
+        }
+
+        .message.sent .message-bubble {
+            background: linear-gradient(135deg, 
+                rgba(228, 198, 203, 0.1), 
+                rgba(235, 215, 195, 0.1));
+            border-color: rgba(228, 198, 203, 0.2);
+        }
+
+        .message-text {
+            font-size: 0.95rem;
+            line-height: 1.4;
+            color: #2c2c2c;
+        }
+
+        .message-time {
+            font-size: 0.75rem;
+            color: #999;
+            margin-top: 4px;
+            text-align: right;
+        }
+
+        .message.received .message-time {
+            text-align: left;
+        }
+
+        .typing-indicator {
+            display: none;
+            align-items: center;
+            gap: 10px;
+            padding: 12px 16px;
+            background: white;
+            border-radius: 16px;
+            border: 1px solid rgba(232, 230, 225, 0.5);
+            margin: 0 20px;
+            margin-bottom: 20px;
+        }
+
+        .typing-avatar {
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, 
+                rgba(228, 198, 203, 0.3), 
+                rgba(235, 215, 195, 0.3));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.8rem;
+        }
+
+        .typing-dots {
+            display: flex;
+            gap: 4px;
+        }
+
+        .typing-dot {
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background: #ccc;
+            animation: typing 1.4s infinite ease-in-out;
+        }
+
+        .typing-dot:nth-child(1) { animation-delay: -0.32s; }
+        .typing-dot:nth-child(2) { animation-delay: -0.16s; }
+
+        @keyframes typing {
+            0%, 80%, 100% {
+                transform: scale(0);
+                opacity: 0.5;
+            }
+            40% {
+                transform: scale(1);
+                opacity: 1;
+            }
+        }
+
+        .chat-input {
+            background: white;
+            border-top: 1px solid rgba(232, 230, 225, 0.5);
+            padding: 15px 20px;
+            display: flex;
+            gap: 12px;
+            align-items: flex-end;
+        }
+
+        .input-container {
+            flex: 1;
+            position: relative;
+        }
+
+        .message-input {
+            width: 100%;
+            min-height: 40px;
+            max-height: 100px;
+            padding: 10px 40px 10px 15px;
+            border: 1px solid #e8e6e1;
+            border-radius: 20px;
+            background: #f8f6f3;
+            font-size: 0.95rem;
+            font-family: inherit;
+            color: #2c2c2c;
+            resize: none;
+            outline: none;
+            transition: all 0.2s ease;
+        }
+
+        .message-input:focus {
+            border-color: rgba(228, 198, 203, 0.3);
+            background: white;
+        }
+
+        .message-input::placeholder {
+            color: #999;
+        }
+
+        .emoji-btn {
+            position: absolute;
+            right: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: none;
+            border: none;
+            font-size: 1.1rem;
+            cursor: pointer;
+            opacity: 0.6;
+            transition: opacity 0.2s ease;
+        }
+
+        .emoji-btn:hover {
+            opacity: 1;
+        }
+
+        .send-btn {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, 
+                rgba(228, 198, 203, 0.3), 
+                rgba(235, 215, 195, 0.3));
+            border: none;
+            color: #2c2c2c;
+            font-size: 1.1rem;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .send-btn:hover {
+            background: linear-gradient(135deg, 
+                rgba(228, 198, 203, 0.5), 
+                rgba(235, 215, 195, 0.5));
+            transform: scale(1.05);
+        }
+
+        .send-btn:disabled {
+            opacity: 0.4;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        @media (max-width: 480px) {
+            .app-container {
+                padding: 0;
+            }
+            
+            .header {
+                padding: 20px 15px 15px;
+            }
+            
+            .page {
+                padding: 15px;
+            }
+            
+            .likes-profile-card {
+                padding: 16px;
+            }
+            
+            .likes-profile-image {
+                width: 50px;
+                height: 50px;
+                font-size: 1.2rem;
+            }
+            
+            .match-celebration,
+            .conversation-starters,
+            .chat-messages {
+                margin: 0 15px;
+                padding: 15px;
+            }
+            
+            .chat-input {
+                padding: 12px 15px;
+            }
+        }
     </style>
-  </head>
-
-  <body>
+</head>
+<body>
     <div class="app-container">
-      <!-- Header -->
-      <div class="header">
-        <button class="back-button hidden" id="backBtn" onclick="goBack()">
-          ←
-        </button>
-        <div class="logo">PRISM</div>
-        <div class="subtitle">진정한 연결을 찾아가는 여정</div>
-      </div>
-
-      <!-- Main Page -->
-      <div class="page active" id="mainPage">
-        <div class="section">
-          <div class="section-header">
-            <div class="question-category">가치관 · 월요일</div>
-            <div class="question-text">
-              연인과의 갈등 상황에서 당신의 해결 방식은?
-            </div>
-          </div>
-
-          <div class="question-options">
-            <div class="option" onclick="selectOption(this)">
-              즉시 대화로 해결
-            </div>
-            <div class="option" onclick="selectOption(this)">
-              시간을 두고 생각 후 대화
-            </div>
-            <div class="option" onclick="selectOption(this)">
-              감정이 가라앉을 때까지 기다림
-            </div>
-            <div class="option" onclick="selectOption(this)">
-              제3자의 조언을 구함
-            </div>
-          </div>
-
-          <div class="action-buttons">
-            <button
-              class="btn btn-primary"
-              id="answerBtn"
-              onclick="submitAnswer()"
-              disabled
-            >
-              답변하기
-            </button>
-            <button class="btn btn-secondary" onclick="skipToMatching()">
-              오늘은 건너뛰기
-            </button>
-          </div>
+        <!-- Header -->
+        <div class="header">
+            <button class="back-button hidden" id="backBtn" onclick="goBack()">←</button>
+            <div class="logo">PRISM</div>
+            <div class="subtitle">진정한 연결을 찾아가는 여정</div>
         </div>
 
-        <div class="section">
-          <div class="streak-info">
-            <div class="streak-number">7</div>
-            <div class="streak-text">연속 참여일</div>
-          </div>
-        </div>
-      </div>
-
-      <!-- Matching Page -->
-      <div class="page" id="matchingPage">
-        <div class="matching-intro">
-          <div class="matching-title">오늘의 매칭</div>
-          <div class="matching-subtitle">
-            당신과 비슷한 답변을 한 사람들을 만나보세요
-          </div>
-        </div>
-
-        <div class="profile-grid">
-          <div class="profile-card" onclick="viewProfile('soyeon')">
-            <div class="profile-header">
-              <div class="profile-photo">🌸</div>
-              <div class="profile-info">
-                <div class="profile-name">서연</div>
-                <div class="profile-age">28세 · 서울 강남구</div>
-              </div>
-            </div>
-
-            <div class="profile-answers">
-              <div class="answer-item">
-                <div class="answer-text">"시간을 두고 생각 후 대화"</div>
-                <div class="answer-likes"><span class="heart">♡</span> 23</div>
-              </div>
-              <div class="answer-item">
-                <div class="answer-text">"카페에서 책 읽으며 여유롭게"</div>
-                <div class="answer-likes"><span class="heart">♡</span> 15</div>
-              </div>
-              <div class="answer-item">
-                <div class="answer-text">"진솔한 대화를 나누는 관계"</div>
-                <div class="answer-likes"><span class="heart">♡</span> 31</div>
-              </div>
-            </div>
-          </div>
-
-          <div class="profile-card" onclick="viewProfile('jimin')">
-            <div class="profile-header">
-              <div class="profile-photo">🌿</div>
-              <div class="profile-info">
-                <div class="profile-name">지민</div>
-                <div class="profile-age">26세 · 경기 성남시</div>
-              </div>
-            </div>
-
-            <div class="profile-answers">
-              <div class="answer-item">
-                <div class="answer-text">"즉시 대화로 해결"</div>
-                <div class="answer-likes"><span class="heart">♡</span> 12</div>
-              </div>
-              <div class="answer-item">
-                <div class="answer-text">"친구들과 활기찬 브런치"</div>
-                <div class="answer-likes"><span class="heart">♡</span> 18</div>
-              </div>
-              <div class="answer-item">
-                <div class="answer-text">"서로를 존중하며 성장하는 관계"</div>
-                <div class="answer-likes"><span class="heart">♡</span> 27</div>
-              </div>
-            </div>
-          </div>
-
-          <div class="profile-card" onclick="viewProfile('haneul')">
-            <div class="profile-header">
-              <div class="profile-photo">🌙</div>
-              <div class="profile-info">
-                <div class="profile-name">하늘</div>
-                <div class="profile-age">31세 · 서울 홍대</div>
-              </div>
-            </div>
-
-            <div class="profile-answers">
-              <div class="answer-item">
-                <div class="answer-text">"감정이 가라앉을 때까지 기다림"</div>
-                <div class="answer-likes"><span class="heart">♡</span> 8</div>
-              </div>
-              <div class="answer-item">
-                <div class="answer-text">"집에서 넷플릭스와 함께"</div>
-                <div class="answer-likes"><span class="heart">♡</span> 22</div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <!-- Profile Detail Page -->
-      <div class="page" id="profileDetailPage">
-        <div class="profile-detail">
-          <div class="detail-header">
-            <div class="detail-photos" id="detailPhotos">
-              <div class="detail-photo active" onclick="selectPhoto(this)">🌸</div>
-              <div class="detail-photo" onclick="selectPhoto(this)">🌺</div>
-              <div class="detail-photo" onclick="selectPhoto(this)">🌻</div>
-              <div class="detail-photo" onclick="selectPhoto(this)">🌷</div>
-              <div class="detail-photo" onclick="selectPhoto(this)">🌹</div>
-            </div>
-            <div class="detail-name" id="detailName">서연</div>
-            <div class="detail-age" id="detailAge">28세 · 서울 강남구</div>
-          </div>
-
-          <div class="answers-section">
-            <div class="section-title">공개 답변</div>
-            <div id="detailAnswers">
-              <div class="detail-answer">
-                <div class="answer-question">연인과의 갈등 해결 방식은?</div>
-                <div class="answer-response">시간을 두고 생각 후 대화</div>
-                <div class="detail-likes"><span class="heart">♡</span> 23</div>
-              </div>
-
-              <div class="detail-answer">
-                <div class="answer-question">이상적인 주말 오후는?</div>
-                <div class="answer-response">카페에서 책 읽으며 여유롭게</div>
-                <div class="detail-likes"><span class="heart">♡</span> 15</div>
-              </div>
-
-              <div class="detail-answer">
-                <div class="answer-question">
-                  가장 중요하게 생각하는 관계는?
+        <!-- Main Page (Today's Question) -->
+        <div class="page active" id="mainPage">
+            <div class="section">
+                <div class="section-header">
+                    <div class="question-category">가치관 · 월요일</div>
+                    <div class="question-text">
+                        연인과의 갈등 상황에서 당신의 해결 방식은?
+                    </div>
                 </div>
-                <div class="answer-response">진솔한 대화를 나누는 관계</div>
-                <div class="detail-likes"><span class="heart">♡</span> 31</div>
-              </div>
+
+                <div class="question-options">
+                    <div class="option" onclick="selectOption(this)">
+                        즉시 대화로 해결
+                    </div>
+                    <div class="option" onclick="selectOption(this)">
+                        시간을 두고 생각 후 대화
+                    </div>
+                    <div class="option" onclick="selectOption(this)">
+                        감정이 가라앉을 때까지 기다림
+                    </div>
+                    <div class="option" onclick="selectOption(this)">
+                        제3자의 조언을 구함
+                    </div>
+                </div>
+
+                <div class="action-buttons">
+                    <button class="btn btn-primary" id="answerBtn" onclick="submitAnswer()" disabled>
+                        답변하기
+                    </button>
+                    <button class="btn btn-secondary" onclick="skipToMatching()">
+                        오늘은 건너뛰기
+                    </button>
+                </div>
             </div>
-          </div>
 
-          <div class="action-buttons-detail">
-            <button class="btn-like" onclick="likeProfile()">
-              💝 관심있어요
-            </button>
-            <button class="btn-pass" onclick="passProfile()">다음에</button>
-          </div>
+            <div class="section">
+                <div class="streak-info">
+                    <div class="streak-number">7</div>
+                    <div class="streak-text">연속 참여일</div>
+                </div>
+            </div>
         </div>
-      </div>
 
-      <!-- Loading Page -->
-      <div class="page" id="loadingPage">
-        <div class="loading">
-          <div class="spinner"></div>
-          <div>매칭을 찾고 있어요...</div>
+        <!-- Matching Page with Tabs -->
+        <div class="page" id="matchingPage">
+            <div class="matching-header">
+                <div class="matching-title">매칭 센터</div>
+                <div class="matching-subtitle">새로운 인연을 찾아보세요</div>
+            </div>
+
+            <!-- Tab Navigation -->
+            <div class="tab-navigation">
+                <button class="tab-button active" onclick="switchTab('todayMatches')">
+                    오늘의 매칭
+                </button>
+                <button class="tab-button" onclick="switchTab('likesReceived')">
+                    나를 좋아한 사람들
+                    <span class="notification-badge">12</span>
+                </button>
+            </div>
+
+            <!-- Today's Matches Tab -->
+            <div class="tab-content active" id="todayMatchesTab">
+                <div class="profile-grid">
+                    <div class="profile-card" onclick="viewProfile('soyeon')">
+                        <div class="profile-header">
+                            <div class="profile-photo">🌸</div>
+                            <div class="profile-info">
+                                <div class="profile-name">서연</div>
+                                <div class="profile-age">28세 · 서울 강남구</div>
+                            </div>
+                        </div>
+
+                        <div class="profile-answers">
+                            <div class="answer-item">
+                                <div class="answer-text">"시간을 두고 생각 후 대화"</div>
+                                <div class="answer-likes"><span class="heart">♡</span> 23</div>
+                            </div>
+                            <div class="answer-item">
+                                <div class="answer-text">"카페에서 책 읽으며 여유롭게"</div>
+                                <div class="answer-likes"><span class="heart">♡</span> 15</div>
+                            </div>
+                            <div class="answer-item">
+                                <div class="answer-text">"진솔한 대화를 나누는 관계"</div>
+                                <div class="answer-likes"><span class="heart">♡</span> 31</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="profile-card" onclick="viewProfile('jimin')">
+                        <div class="profile-header">
+                            <div class="profile-photo">🌿</div>
+                            <div class="profile-info">
+                                <div class="profile-name">지민</div>
+                                <div class="profile-age">26세 · 경기 성남시</div>
+                            </div>
+                        </div>
+
+                        <div class="profile-answers">
+                            <div class="answer-item">
+                                <div class="answer-text">"즉시 대화로 해결"</div>
+                                <div class="answer-likes"><span class="heart">♡</span> 12</div>
+                            </div>
+                            <div class="answer-item">
+                                <div class="answer-text">"친구들과 활기찬 브런치"</div>
+                                <div class="answer-likes"><span class="heart">♡</span> 18</div>
+                            </div>
+                            <div class="answer-item">
+                                <div class="answer-text">"서로를 존중하며 성장하는 관계"</div>
+                                <div class="answer-likes"><span class="heart">♡</span> 27</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="profile-card" onclick="viewProfile('haneul')">
+                        <div class="profile-header">
+                            <div class="profile-photo">🌙</div>
+                            <div class="profile-info">
+                                <div class="profile-name">하늘</div>
+                                <div class="profile-age">31세 · 서울 홍대</div>
+                            </div>
+                        </div>
+
+                        <div class="profile-answers">
+                            <div class="answer-item">
+                                <div class="answer-text">"감정이 가라앉을 때까지 기다림"</div>
+                                <div class="answer-likes"><span class="heart">♡</span> 8</div>
+                            </div>
+                            <div class="answer-item">
+                                <div class="answer-text">"집에서 넷플릭스와 함께"</div>
+                                <div class="answer-likes"><span class="heart">♡</span> 22</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Likes Received Tab -->
+            <div class="tab-content" id="likesReceivedTab">
+                <div class="likes-intro">
+                    <div class="intro-title">✨ 새로운 연결의 시작</div>
+                    <div class="intro-text">
+                        이분들이 공주님의 답변에 공감하며 좋아요를 보냈어요. 
+                        프로필을 천천히 둘러보고 진정한 연결을 찾아보세요.
+                    </div>
+                </div>
+                
+                <div class="filter-section">
+                    <button class="filter-btn active">전체</button>
+                    <button class="filter-btn">오늘</button>
+                    <button class="filter-btn">이번 주</button>
+                    <button class="filter-btn">높은 공감도</button>
+                </div>
+                
+                <div class="likes-grid">
+                    <div class="likes-profile-card" data-profile="jisu">
+                        <div class="match-indicator"></div>
+                        <div class="like-time">2시간 전</div>
+                        
+                        <div class="likes-profile-header">
+                            <div class="likes-profile-image">🌸</div>
+                            <div class="likes-profile-info">
+                                <div class="likes-profile-name">지수</div>
+                                <div class="likes-profile-meta">
+                                    <span>28세</span>
+                                    <span>서울 강남구</span>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="answers-preview">
+                            <div class="likes-answer-item">
+                                <div class="answer-question">Q. 이상적인 주말을 어떻게 보내고 싶나요?</div>
+                                <div class="likes-answer-text">좋아하는 사람과 조용한 카페에서 책 읽으며 대화 나누기</div>
+                            </div>
+                            <div class="likes-answer-item">
+                                <div class="answer-question">Q. 당신에게 사랑이란?</div>
+                                <div class="likes-answer-text">서로의 성장을 응원하며 함께 꿈꾸는 것</div>
+                            </div>
+                        </div>
+                        
+                        <div class="compatibility-score">공감도 92%</div>
+                        
+                        <div class="action-buttons-likes">
+                            <button class="btn-pass">다음에</button>
+                            <button class="btn-like" onclick="createMatch('jisu')">💜 관심 표현하기</button>
+                        </div>
+                    </div>
+                    
+                    <div class="likes-profile-card" data-profile="minji">
+                        <div class="like-time">5시간 전</div>
+                        
+                        <div class="likes-profile-header">
+                            <div class="likes-profile-image">🌿</div>
+                            <div class="likes-profile-info">
+                                <div class="likes-profile-name">민지</div>
+                                <div class="likes-profile-meta">
+                                    <span>26세</span>
+                                    <span>서울 홍대</span>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="answers-preview">
+                            <div class="likes-answer-item">
+                                <div class="answer-question">Q. 가장 소중히 여기는 가치는?</div>
+                                <div class="likes-answer-text">진정성. 있는 그대로의 모습으로 사랑받고 사랑하는 것</div>
+                            </div>
+                            <div class="likes-answer-item">
+                                <div class="answer-question">Q. 연인과 갈등이 생겼을 때 해결 방법은?</div>
+                                <div class="likes-answer-text">차분히 앉아서 서로의 마음을 솔직하게 이야기하기</div>
+                            </div>
+                        </div>
+                        
+                        <div class="compatibility-score">공감도 87%</div>
+                        
+                        <div class="action-buttons-likes">
+                            <button class="btn-pass">다음에</button>
+                            <button class="btn-like" onclick="createMatch('minji')">💜 관심 표현하기</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
-      </div>
+
+        <!-- Loading Page -->
+        <div class="page" id="loadingPage">
+            <div class="loading">
+                <div class="spinner"></div>
+                <div>매칭을 찾고 있어요...</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Chat Mode (Full Screen Overlay) -->
+    <div class="chat-mode" id="chatMode">
+        <div class="chat-header">
+            <button class="chat-back-btn" onclick="backToMatching()">←</button>
+            <div class="profile-mini">
+                <div class="profile-avatar" id="chatAvatar">🌸</div>
+                <div class="profile-info">
+                    <div class="profile-chat-name" id="chatName">지수</div>
+                    <div class="profile-status">방금 전 접속</div>
+                </div>
+            </div>
+            <button class="chat-menu">⋯</button>
+        </div>
+        
+        <div class="match-celebration">
+            <div class="celebration-icon">✨💜✨</div>
+            <div class="celebration-title">매칭이 성공했어요!</div>
+            <div class="celebration-subtitle">
+                서로의 답변에 공감하며 연결되었습니다.<br>
+                진솔한 대화를 시작해보세요.
+            </div>
+        </div>
+        
+        <div class="conversation-starters" id="conversationStarters">
+            <div class="starters-title">
+                💭 공통 관심사로 대화 시작하기
+            </div>
+            <div class="starter-item" onclick="useStarter(this)">
+                <div class="starter-text">"조용한 카페에서 책 읽기를 좋아하신다고 하셨는데, 최근에 읽은 책이 있나요?"</div>
+            </div>
+            <div class="starter-item" onclick="useStarter(this)">
+                <div class="starter-text">"서로의 성장을 응원한다는 말에 깊이 공감했어요. 어떤 방식으로 응원하는 걸 좋아하시나요?"</div>
+            </div>
+            <div class="starter-item" onclick="useStarter(this)">
+                <div class="starter-text">"안녕하세요! 답변들을 보니 정말 따뜻한 분이신 것 같아요 😊"</div>
+            </div>
+        </div>
+        
+        <div class="chat-messages" id="chatMessages">
+            <!-- 메시지들이 여기에 표시됩니다 -->
+        </div>
+        
+        <div class="typing-indicator" id="typingIndicator">
+            <div class="typing-avatar" id="typingAvatar">🌸</div>
+            <div class="typing-dots">
+                <div class="typing-dot"></div>
+                <div class="typing-dot"></div>
+                <div class="typing-dot"></div>
+            </div>
+            <span style="font-size: 0.8rem; color: #666; margin-left: 8px;" id="typingText">지수가 입력 중...</span>
+        </div>
+        
+        <div class="chat-input">
+            <div class="input-container">
+                <textarea 
+                    class="message-input" 
+                    placeholder="메시지를 입력하세요..."
+                    rows="1"
+                    id="messageInput"
+                ></textarea>
+                <button class="emoji-btn">😊</button>
+            </div>
+            <button class="send-btn" id="sendBtn" disabled>→</button>
+        </div>
     </div>
 
     <script>
-      let currentPage = "mainPage";
-      let selectedAnswer = null;
+        let currentPage = "mainPage";
+        let selectedAnswer = null;
+        let currentTab = "todayMatches";
+        let messageCount = 0;
+        let currentProfile = null;
+        const pageHistory = [];
 
-      const pageHistory = [];
+        const profileData = {
+            jisu: {
+                name: "지수",
+                avatar: "🌸",
+                responses: [
+                    "안녕하세요! 저도 공주님의 답변들을 보면서 많은 공감이 되었어요 😊",
+                    "네, 최근에 '82년생 김지영'을 다시 읽었는데, 볼 때마다 새로운 생각이 들더라고요",
+                    "정말 반가워요! 이렇게 대화할 수 있게 되어서 기뻐요 ✨",
+                    "맞아요, 서로 응원한다는 것이 정말 중요하다고 생각해요. 작은 관심과 격려가 큰 힘이 되잖아요",
+                    "공주님은 평소에 어떤 일을 하고 계시나요? 궁금해요!"
+                ]
+            },
+            minji: {
+                name: "민지",
+                avatar: "🌿",
+                responses: [
+                    "안녕하세요! 진정성 있는 분을 만나게 되어 정말 기뻐요 🌿",
+                    "맞아요, 솔직한 대화가 정말 중요하다고 생각해요. 서로 이해하려는 마음이 가장 소중하죠",
+                    "저도 공주님의 답변을 보고 깊이 공감했어요. 특히 자신다움에 대한 부분이요",
+                    "평소에 갈등을 어떻게 해결하시는지도 궁금해요. 경험담이 있다면 들어보고 싶어요",
+                    "이렇게 대화하니까 정말 좋네요! 앞으로도 많은 이야기 나누고 싶어요 😊"
+                ]
+            }
+        };
 
-      const profileData = {
-        soyeon: {
-          photos: ["🌸", "🌺", "🌻", "🌷", "🌹"],
-          name: "서연",
-          age: "28세 · 서울 강남구",
-          answers: [
-            {
-              question: "연인과의 갈등 해결 방식은?",
-              response: "시간을 두고 생각 후 대화",
-              likes: 23,
-            },
-            {
-              question: "이상적인 주말 오후는?",
-              response: "카페에서 책 읽으며 여유롭게",
-              likes: 15,
-            },
-            {
-              question: "가장 중요하게 생각하는 관계는?",
-              response: "진솔한 대화를 나누는 관계",
-              likes: 31,
-            },
-          ],
-        },
-        jimin: {
-          photos: ["🌿", "🍃", "🌱", "🌾"],
-          name: "지민",
-          age: "26세 · 경기 성남시",
-          answers: [
-            {
-              question: "연인과의 갈등 해결 방식은?",
-              response: "즉시 대화로 해결",
-              likes: 12,
-            },
-            {
-              question: "이상적인 주말 오후는?",
-              response: "친구들과 활기찬 브런치",
-              likes: 18,
-            },
-            {
-              question: "가장 중요하게 생각하는 관계는?",
-              response: "서로를 존중하며 성장하는 관계",
-              likes: 27,
-            },
-          ],
-        },
-        haneul: {
-          photos: ["🌙", "⭐", "🌌"],
-          name: "하늘",
-          age: "31세 · 서울 홍대",
-          answers: [
-            {
-              question: "연인과의 갈등 해결 방식은?",
-              response: "감정이 가라앉을 때까지 기다림",
-              likes: 8,
-            },
-            {
-              question: "이상적인 주말 오후는?",
-              response: "집에서 넷플릭스와 함께",
-              likes: 22,
-            },
-          ],
-        },
-      };
+        function showPage(pageId) {
+            const currentPageEl = document.getElementById(currentPage);
+            if (currentPageEl) {
+                currentPageEl.classList.remove("active");
+            }
 
-      function showPage(pageId) {
-        // Hide current page
-        const currentPageEl = document.getElementById(currentPage);
-        if (currentPageEl) {
-          currentPageEl.classList.remove("active");
+            document.getElementById(pageId).classList.add("active");
+            pageHistory.push(currentPage);
+            currentPage = pageId;
+
+            const backBtn = document.getElementById("backBtn");
+            if (pageId === "mainPage") {
+                backBtn.classList.add("hidden");
+            } else {
+                backBtn.classList.remove("hidden");
+            }
         }
 
-        // Show new page
-        document.getElementById(pageId).classList.add("active");
+        function goBack() {
+            if (pageHistory.length > 0) {
+                const previousPage = pageHistory.pop();
+                document.getElementById(currentPage).classList.remove("active");
+                document.getElementById(previousPage).classList.add("active");
+                currentPage = previousPage;
 
-        // Update current page
-        pageHistory.push(currentPage);
-        currentPage = pageId;
-
-        // Show/hide back button
-        const backBtn = document.getElementById("backBtn");
-        if (pageId === "mainPage") {
-          backBtn.classList.add("hidden");
-        } else {
-          backBtn.classList.remove("hidden");
+                const backBtn = document.getElementById("backBtn");
+                if (currentPage === "mainPage") {
+                    backBtn.classList.add("hidden");
+                }
+            }
         }
-      }
 
-      function goBack() {
-        if (pageHistory.length > 0) {
-          const previousPage = pageHistory.pop();
-
-          // Hide current page
-          document.getElementById(currentPage).classList.remove("active");
-
-          // Show previous page
-          document.getElementById(previousPage).classList.add("active");
-          currentPage = previousPage;
-
-          // Update back button visibility
-          const backBtn = document.getElementById("backBtn");
-          if (currentPage === "mainPage") {
-            backBtn.classList.add("hidden");
-          }
+        function selectOption(element) {
+            const options = document.querySelectorAll(".option");
+            options.forEach((option) => option.classList.remove("selected"));
+            element.classList.add("selected");
+            selectedAnswer = element.textContent;
+            document.getElementById("answerBtn").disabled = false;
         }
-      }
 
-      function selectOption(element) {
-        // Remove selection from all options
-        const options = document.querySelectorAll(".option");
-        options.forEach((option) => option.classList.remove("selected"));
-
-        // Add selection to clicked option
-        element.classList.add("selected");
-        selectedAnswer = element.textContent;
-
-        // Enable answer button
-        document.getElementById("answerBtn").disabled = false;
-      }
-
-      function submitAnswer() {
-        if (selectedAnswer) {
-          // Show loading
-          showPage("loadingPage");
-
-          // Simulate API call
-          setTimeout(() => {
-            showPage("matchingPage");
-          }, 1500);
+        function submitAnswer() {
+            if (selectedAnswer) {
+                showPage("loadingPage");
+                setTimeout(() => {
+                    showPage("matchingPage");
+                }, 1500);
+            }
         }
-      }
 
-      function skipToMatching() {
-        // Show loading
-        showPage("loadingPage");
+        function skipToMatching() {
+            showPage("loadingPage");
+            setTimeout(() => {
+                showPage("matchingPage");
+            }, 1000);
+        }
 
-        // Simulate API call
-        setTimeout(() => {
-          showPage("matchingPage");
-        }, 1000);
-      }
+        function switchTab(tabName) {
+            document.querySelectorAll('.tab-button').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            event.target.classList.add('active');
+            
+            document.querySelectorAll('.tab-content').forEach(content => {
+                content.classList.remove('active');
+            });
+            
+            if (tabName === 'todayMatches') {
+                document.getElementById('todayMatchesTab').classList.add('active');
+            } else if (tabName === 'likesReceived') {
+                document.getElementById('likesReceivedTab').classList.add('active');
+            }
+            
+            currentTab = tabName;
+        }
 
-      function viewProfile(profileId) {
-        const profile = profileData[profileId];
-        if (!profile) return;
+        function createMatch(profileId) {
+            currentProfile = profileId;
+            const profile = profileData[profileId];
+            
+            event.target.style.background = 'linear-gradient(135deg, rgba(200, 225, 210, 0.3), rgba(195, 215, 235, 0.3))';
+            event.target.textContent = '✨ 매칭 성공!';
+            event.target.disabled = true;
+            
+            const card = event.target.closest('.likes-profile-card');
+            card.style.background = 'linear-gradient(135deg, rgba(228, 198, 203, 0.05), rgba(235, 215, 195, 0.05))';
+            
+            setTimeout(() => {
+                switchToChatMode(profile);
+            }, 1500);
+        }
 
-        // Update profile detail page photos
-        const photosContainer = document.getElementById("detailPhotos");
-        photosContainer.innerHTML = profile.photos
-          .map(
-            (photo, index) => `
-                <div class="detail-photo ${index === 0 ? 'active' : ''}" onclick="selectPhoto(this)">
-                    ${photo}
-                </div>
-            `
-          )
-          .join("");
+        function switchToChatMode(profile) {
+            document.getElementById('chatAvatar').textContent = profile.avatar;
+            document.getElementById('chatName').textContent = profile.name;
+            document.getElementById('typingAvatar').textContent = profile.avatar;
+            document.getElementById('typingText').textContent = `${profile.name}가 입력 중...`;
+            document.getElementById('chatMode').classList.add('active');
+        }
 
-        // Update profile info
-        document.getElementById("detailName").textContent = profile.name;
-        document.getElementById("detailAge").textContent = profile.age;
+        function backToMatching() {
+            if (confirm('대화를 종료하고 매칭 페이지로 돌아가시겠어요?')) {
+                document.getElementById('chatMode').classList.remove('active');
+                document.getElementById('chatMessages').innerHTML = '';
+                messageCount = 0;
+                currentProfile = null;
+                
+                const starters = document.getElementById('conversationStarters');
+                starters.style.display = 'block';
+                starters.style.opacity = '1';
+                starters.style.transform = 'translateY(0)';
+            }
+        }
 
-        // Update answers
-        const answersContainer = document.getElementById("detailAnswers");
-        answersContainer.innerHTML = profile.answers
-          .map(
-            (answer) => `
-                <div class="detail-answer">
-                    <div class="answer-question">${answer.question}</div>
-                    <div class="answer-response">${answer.response}</div>
-                    <div class="detail-likes">
-                        <span class="heart">♡</span> ${answer.likes}
+        document.querySelectorAll('.filter-btn').forEach(btn => {
+            btn.addEventListener('click', function() {
+                document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+                this.classList.add('active');
+            });
+        });
+
+        function useStarter(element) {
+            const text = element.querySelector('.starter-text').textContent;
+            document.getElementById('messageInput').value = text;
+            updateSendButton();
+            element.style.opacity = '0.5';
+            element.style.pointerEvents = 'none';
+        }
+
+        const messageInput = document.getElementById('messageInput');
+        const sendBtn = document.getElementById('sendBtn');
+
+        messageInput.addEventListener('input', function() {
+            updateSendButton();
+            autoResize(this);
+        });
+
+        messageInput.addEventListener('keypress', function(e) {
+            if (e.key === 'Enter' && !e.shiftKey) {
+                e.preventDefault();
+                sendMessage();
+            }
+        });
+
+        function updateSendButton() {
+            sendBtn.disabled = messageInput.value.trim() === '';
+        }
+
+        function autoResize(textarea) {
+            textarea.style.height = 'auto';
+            textarea.style.height = Math.min(textarea.scrollHeight, 100) + 'px';
+        }
+
+        sendBtn.addEventListener('click', sendMessage);
+
+        function sendMessage() {
+            const text = messageInput.value.trim();
+            if (!text) return;
+
+            addMessage(text, true);
+            messageInput.value = '';
+            updateSendButton();
+            messageInput.style.height = 'auto';
+
+            if (messageCount === 1) {
+                hideStarters();
+            }
+
+            setTimeout(() => {
+                showTyping();
+                setTimeout(() => {
+                    hideTyping();
+                    simulateResponse(text);
+                }, 2000);
+            }, 500);
+        }
+
+        function addMessage(text, isSent = false) {
+            messageCount++;
+            const messagesContainer = document.getElementById('chatMessages');
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `message ${isSent ? 'sent' : 'received'}`;
+
+            const profile = profileData[currentProfile];
+            const avatar = isSent ? '🦋' : profile.avatar;
+            const time = new Date().toLocaleTimeString('ko-KR', { hour: '2-digit', minute: '2-digit' });
+
+            messageDiv.innerHTML = `
+                <div class="message-avatar">${avatar}</div>
+                <div class="message-content">
+                    <div class="message-bubble">
+                        <div class="message-text">${text}</div>
                     </div>
+                    <div class="message-time">${time}</div>
                 </div>
-            `
-          )
-          .join("");
+            `;
 
-        showPage("profileDetailPage");
-      }
+            messagesContainer.appendChild(messageDiv);
+            messagesContainer.scrollTop = messagesContainer.scrollHeight;
+        }
 
-      function selectPhoto(element) {
-        // Remove active from all photos
-        const photos = document.querySelectorAll(".detail-photo");
-        photos.forEach((photo) => photo.classList.remove("active"));
+        function hideStarters() {
+            const starters = document.getElementById('conversationStarters');
+            starters.style.transition = 'all 0.3s ease';
+            starters.style.opacity = '0';
+            starters.style.transform = 'translateY(-20px)';
+            setTimeout(() => {
+                starters.style.display = 'none';
+            }, 300);
+        }
 
-        // Add active to clicked photo
-        element.classList.add("active");
-      }
+        function showTyping() {
+            document.getElementById('typingIndicator').style.display = 'flex';
+            const container = document.getElementById('chatMessages');
+            container.scrollTop = container.scrollHeight;
+        }
 
-      function toggleFilter(element) {
-        // Remove active from all filters
-        const filters = document.querySelectorAll(".filter-tag");
-        filters.forEach((filter) => filter.classList.remove("active"));
+        function hideTyping() {
+            document.getElementById('typingIndicator').style.display = 'none';
+        }
 
-        // Add active to clicked filter
-        element.classList.add("active");
-      }
+        function simulateResponse(userMessage) {
+            if (!currentProfile || !profileData[currentProfile]) return;
+            
+            const responses = profileData[currentProfile].responses;
+            const randomResponse = responses[Math.floor(Math.random() * responses.length)];
+            addMessage(randomResponse, false);
+        }
 
-      function likeProfile() {
-        alert(
-          "💝 관심 표시를 보냈어요!\n상대방도 관심을 표시하면 채팅을 시작할 수 있어요."
-        );
-        goBack(); // Return to matching page
-      }
-
-      function passProfile() {
-        goBack(); // Return to matching page
-      }
+        function viewProfile(profileId) {
+            console.log('View profile:', profileId);
+        }
     </script>
-  </body>
+</body>
 </html>
